@@ -22,6 +22,7 @@ public class DbModule {
     AppDatabase provideDatabase(@NonNull Application application) {
         return Room.databaseBuilder(application,
                 AppDatabase.class, "Github.db")
+                .allowMainThreadQueries()
                 .build();
     }
 
