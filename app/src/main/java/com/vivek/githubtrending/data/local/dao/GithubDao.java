@@ -1,5 +1,6 @@
 package com.vivek.githubtrending.data.local.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -13,8 +14,8 @@ import java.util.List;
 public interface GithubDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long[] insertRepositories(List<GithubEntity> githubEntities);
+    void insertRepositories(List<GithubEntity> githubEntities);
 
     @Query("SELECT * FROM `GithubEntity`")
-    List<GithubEntity> getTrendingRepository();
+    LiveData<List<GithubEntity>> getTrendingRepository();
 }

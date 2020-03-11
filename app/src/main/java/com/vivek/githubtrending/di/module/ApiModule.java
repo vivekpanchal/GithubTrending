@@ -5,6 +5,7 @@ import android.app.Application;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.vivek.githubtrending.data.remote.api.GithubTrendingApiService;
+import com.vivek.githubtrending.util.LiveDataCallAdapterFactory;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +60,7 @@ public class ApiModule {
     Retrofit provideRetrofit(Gson gson, OkHttpClient okHttpClient) {
         return new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addCallAdapterFactory(new LiveDataCallAdapterFactory())
                 .baseUrl("https://github-trending-api.now.sh/")
                 .client(okHttpClient)
                 .build();
