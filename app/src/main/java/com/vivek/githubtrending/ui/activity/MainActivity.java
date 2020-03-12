@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //region initialise the View
     private void initialiseView() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         setSupportActionBar(binding.mainToolbar.toolbar);
@@ -72,6 +73,10 @@ public class MainActivity extends AppCompatActivity {
         } else displayDataView(mainViewModel.getRepositories());
     }
 
+    //endregion
+
+    //region initialises the ViewModel
+
     private void initialiseViewModel() {
         mainViewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
         mainViewModel.getRepositoryListLiveData().observe(this, repositories -> {
@@ -85,7 +90,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //endregion
 
+
+    //region methods to show/hide  data , loader
     private void displayEmptyView() {
         hideLoader();
         binding.viewEmpty.emptyContainer.setVisibility(View.VISIBLE);
@@ -102,10 +110,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayDataView(List<GithubEntity> repositories) {
         binding.viewEmpty.emptyContainer.setVisibility(View.GONE);
-        // Hide the loader before display view
         hideLoader();
         adapter.setItems(repositories);
-        // you should always notify the adapter when changes happens
         adapter.notifyDataSetChanged();
     }
+    //endregion
 }

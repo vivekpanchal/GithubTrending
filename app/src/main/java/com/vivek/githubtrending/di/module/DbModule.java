@@ -21,8 +21,7 @@ public class DbModule {
     @Singleton
     AppDatabase provideDatabase(@NonNull Application application) {
         return Room.databaseBuilder(application,
-                AppDatabase.class, "Github.db")
-                .allowMainThreadQueries()
+                AppDatabase.class, "Github.db").allowMainThreadQueries()
                 .build();
     }
 

@@ -1,6 +1,7 @@
 package com.vivek.githubtrending.data.local.entity;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity
@@ -12,6 +13,7 @@ public class CallTimeOutEntity {
     private int lastRefreshTimeStamp;
 
 
+    @Ignore
     public CallTimeOutEntity() {
     }
 

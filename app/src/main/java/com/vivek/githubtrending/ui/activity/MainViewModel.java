@@ -26,8 +26,8 @@ public class MainViewModel extends ViewModel {
     private SingleLiveEvent<List<GithubEntity>> repoListLiveData = new SingleLiveEvent<>();
 
     @Inject
-    public MainViewModel(GithubDao githubDao, GithubTrendingApiService githubApiService) {
-        repository = new GithubRepository(githubDao, githubApiService);
+    public MainViewModel(GithubRepository GithubRepository) {
+        this.repository = GithubRepository;
     }
 
     @SuppressLint("CheckResult")
