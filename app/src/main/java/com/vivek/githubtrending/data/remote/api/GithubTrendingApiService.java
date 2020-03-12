@@ -2,7 +2,6 @@ package com.vivek.githubtrending.data.remote.api;
 
 
 import com.vivek.githubtrending.data.local.entity.GithubEntity;
-import com.vivek.githubtrending.data.remote.model.GithubApiResponse;
 
 import java.util.List;
 

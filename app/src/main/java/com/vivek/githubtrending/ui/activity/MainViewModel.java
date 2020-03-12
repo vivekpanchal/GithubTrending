@@ -43,6 +43,19 @@ public class MainViewModel extends ViewModel {
     }
 
 
+    @SuppressLint("CheckResult")
+    public void forceFetchRepositories() {
+        repository.getRepositoriesForceUpdate()
+                .subscribe(resource -> {
+                    if (resource.isLoaded()) {
+                        repositories.addAll(resource.data);
+                        Timber.d("resource data :%s", resource.data.toString());
+                        getRepositoryListLiveData().postValue(resource.data);
+                    }
+                });
+    }
+
+
     public List<GithubEntity> getRepositories() {
         return repositories;
     }

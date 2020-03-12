@@ -13,9 +13,8 @@ import com.google.gson.annotations.SerializedName;
 @Entity
 public class GithubEntity implements Parcelable {
 
-    public GithubEntity(@NonNull Long id, String author, String name, String avatar,
+    public GithubEntity(@NonNull String author, String name, String avatar,
                         String url, String description, Integer stars, Integer forks, Integer currentPeriodStars, String language, String languageColor) {
-        this.id = id;
         this.author = author;
         this.name = name;
         this.avatar = avatar;
@@ -30,8 +29,6 @@ public class GithubEntity implements Parcelable {
 
     @NonNull
     @PrimaryKey
-    private Long id;
-
     @SerializedName("author")
     @Expose
     private String author;
@@ -64,14 +61,6 @@ public class GithubEntity implements Parcelable {
     @Expose
     private String languageColor;
 
-    @NonNull
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(@NonNull Long id) {
-        this.id = id;
-    }
 
     protected GithubEntity(Parcel in) {
         author = in.readString();
@@ -110,11 +99,12 @@ public class GithubEntity implements Parcelable {
         }
     };
 
+    @NonNull
     public String getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public void setAuthor(@NonNull String author) {
         this.author = author;
     }
 
@@ -174,7 +164,6 @@ public class GithubEntity implements Parcelable {
         this.currentPeriodStars = currentPeriodStars;
     }
 
-
     public String getLanguage() {
         return language;
     }
@@ -191,38 +180,54 @@ public class GithubEntity implements Parcelable {
         this.languageColor = languageColor;
     }
 
-
     @Override
     public int describeContents() {
         return 0;
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(author);
-        dest.writeString(name);
-        dest.writeString(avatar);
-        dest.writeString(url);
-        dest.writeString(description);
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(author);
+        parcel.writeString(name);
+        parcel.writeString(avatar);
+        parcel.writeString(url);
+        parcel.writeString(description);
         if (stars == null) {
-            dest.writeByte((byte) 0);
+            parcel.writeByte((byte) 0);
         } else {
-            dest.writeByte((byte) 1);
-            dest.writeInt(stars);
+            parcel.writeByte((byte) 1);
+            parcel.writeInt(stars);
         }
         if (forks == null) {
-            dest.writeByte((byte) 0);
+            parcel.writeByte((byte) 0);
         } else {
-            dest.writeByte((byte) 1);
-            dest.writeInt(forks);
+            parcel.writeByte((byte) 1);
+            parcel.writeInt(forks);
         }
         if (currentPeriodStars == null) {
-            dest.writeByte((byte) 0);
+            parcel.writeByte((byte) 0);
         } else {
-            dest.writeByte((byte) 1);
-            dest.writeInt(currentPeriodStars);
+            parcel.writeByte((byte) 1);
+            parcel.writeInt(currentPeriodStars);
         }
-        dest.writeString(language);
-        dest.writeString(languageColor);
+        parcel.writeString(language);
+        parcel.writeString(languageColor);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "GithubEntity{" +
+                "author='" + author + '\'' +
+                ", name='" + name + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", url='" + url + '\'' +
+                ", description='" + description + '\'' +
+                ", stars=" + stars +
+                ", forks=" + forks +
+                ", currentPeriodStars=" + currentPeriodStars +
+                ", language='" + language + '\'' +
+                ", languageColor='" + languageColor + '\'' +
+                '}';
     }
 }
