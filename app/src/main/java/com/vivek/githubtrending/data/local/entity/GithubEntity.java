@@ -18,8 +18,6 @@ public class GithubEntity implements Parcelable {
 
     @NonNull
     @PrimaryKey
-    private Long id;
-
     @SerializedName("author")
     @Expose
     private String author;
@@ -45,9 +43,8 @@ public class GithubEntity implements Parcelable {
 
     private Date lastRefresh;
 
-    public GithubEntity(@NonNull Long id, String author, String name, String avatar, String url,
+    public GithubEntity(@NonNull String author, String name, String avatar, String url,
                         String description, Integer stars, Integer forks, Date lastRefresh) {
-        this.id = id;
         this.author = author;
         this.name = name;
         this.avatar = avatar;
@@ -58,12 +55,8 @@ public class GithubEntity implements Parcelable {
         this.lastRefresh = lastRefresh;
     }
 
+
     protected GithubEntity(Parcel in) {
-        if (in.readByte() == 0) {
-            id = null;
-        } else {
-            id = in.readLong();
-        }
         author = in.readString();
         name = in.readString();
         avatar = in.readString();
@@ -94,19 +87,11 @@ public class GithubEntity implements Parcelable {
     };
 
     @NonNull
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(@NonNull Long id) {
-        this.id = id;
-    }
-
     public String getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public void setAuthor(@NonNull String author) {
         this.author = author;
     }
 
@@ -166,6 +151,7 @@ public class GithubEntity implements Parcelable {
         this.lastRefresh =lastRefresh;
     }
 
+
     @Override
     public int describeContents() {
         return 0;
@@ -173,12 +159,6 @@ public class GithubEntity implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        if (id == null) {
-            dest.writeByte((byte) 0);
-        } else {
-            dest.writeByte((byte) 1);
-            dest.writeLong(id);
-        }
         dest.writeString(author);
         dest.writeString(name);
         dest.writeString(avatar);

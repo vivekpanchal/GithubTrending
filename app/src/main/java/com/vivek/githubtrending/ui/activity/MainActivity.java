@@ -1,6 +1,7 @@
 package com.vivek.githubtrending.ui.activity;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -64,6 +65,18 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             }
+        });
+
+
+        binding.refresh.setOnRefreshListener(() -> {
+            // Your code to make your refresh action
+            mainViewModel.fetchRepository();
+            final Handler handler = new Handler();
+            handler.postDelayed(() -> {
+                if (binding.refresh.isRefreshing()) {
+                    binding.refresh.setRefreshing(false);
+                }
+            }, 1000);
         });
 
     }
