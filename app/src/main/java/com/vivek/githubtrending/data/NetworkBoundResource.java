@@ -8,6 +8,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 
 public abstract class NetworkBoundResource<ResultType, RequestType> {
 
@@ -21,7 +22,7 @@ public abstract class NetworkBoundResource<ResultType, RequestType> {
                     .subscribeOn(Schedulers.io())
                     .doOnNext(apiResponse -> saveCallResult(processResponse(apiResponse)))
                     .flatMap(apiResponse -> loadFromDb().toObservable().map(Resource::success))
-                    .doOnError(t -> onFetchFailed())
+                    .doOnError(this::onFetchFailed) // Always log errors don't leave empty
                     .onErrorResumeNext(t -> {
                         return loadFromDb()
                                 .toObservable()
@@ -46,7 +47,10 @@ public abstract class NetworkBoundResource<ResultType, RequestType> {
 
     public Observable<Resource<ResultType>> getAsObservable() {return result;}
 
-    protected void onFetchFailed() {}
+    // Always log errors don't leave empty
+    protected void onFetchFailed(Throwable cause) {
+        Timber.e(cause);
+    }
 
     @WorkerThread
     protected RequestType processResponse(Resource<RequestType> response) {return response.data;}

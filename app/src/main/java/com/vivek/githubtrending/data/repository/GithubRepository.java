@@ -1,7 +1,6 @@
 package com.vivek.githubtrending.data.repository;
 
 
-
 import androidx.annotation.NonNull;
 
 import com.vivek.githubtrending.data.NetworkBoundResource;
@@ -19,7 +18,6 @@ import io.reactivex.Flowable;
 import io.reactivex.Observable;
 
 
-
 @Singleton
 public class GithubRepository {
 
@@ -32,13 +30,11 @@ public class GithubRepository {
     }
 
     public Observable<Resource<List<GithubEntity>>> getRepositories() {
-        return new NetworkBoundResource<List<GithubEntity>, GithubApiResponse>() {
+        return new NetworkBoundResource<List<GithubEntity>, List<GithubEntity>>() {
 
             @Override
-            protected void saveCallResult(@NonNull GithubApiResponse item) {
-                List<GithubEntity> repositories = item.getItems();
-
-                githubDao.insertRepositories(repositories);
+            protected void saveCallResult(@NonNull List<GithubEntity>item) {
+                githubDao.insertRepositories(item);
             }
 
             @Override
@@ -56,12 +52,16 @@ public class GithubRepository {
 
             @NonNull
             @Override
-            protected Observable<Resource<GithubApiResponse>> createCall() {
-                return githubApiService.fetchTrendingRepositories()
-                        .flatMap(response ->
-                                Observable.just(response.isSuccessful()
-                                        ? Resource.success(response.body())
-                                        : Resource.error("", new GithubApiResponse())));
+            protected Observable<Resource<List<GithubEntity>>> createCall() {
+                return githubApiService.fetchTrendingRepositories().flatMap(
+                        listResponse -> {
+                            if (listResponse.isSuccessful()) {
+                                return Observable.just(Resource.success(listResponse.body()));
+                            }else {
+                                return Observable.just(Resource.error("Error fetching trending repositories", null));
+                            }
+                        }
+                );
             }
 
         }.getAsObservable();

@@ -91,6 +91,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayDataView(List<GithubEntity> repositories) {
         binding.viewEmpty.emptyContainer.setVisibility(View.GONE);
+        // Hide the loader before display view
+        hideLoader();
         adapter.setItems(repositories);
+        // you should always notify the adapter when changes happens
+        adapter.notifyDataSetChanged();
     }
 }
