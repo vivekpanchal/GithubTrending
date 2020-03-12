@@ -5,6 +5,7 @@ import android.app.Application;
 import com.vivek.githubtrending.BaseApplication;
 import com.vivek.githubtrending.di.module.ActivityModule;
 import com.vivek.githubtrending.di.module.ApiModule;
+import com.vivek.githubtrending.di.module.AppModule;
 import com.vivek.githubtrending.di.module.DbModule;
 import com.vivek.githubtrending.di.module.ViewModelModule;
 
@@ -20,6 +21,7 @@ import dagger.android.support.AndroidSupportInjectionModule;
         DbModule.class,
         ViewModelModule.class,
         ActivityModule.class,
+        AppModule.class,
         AndroidSupportInjectionModule.class})
 @Singleton
 public interface AppComponent {

@@ -6,6 +6,7 @@ import com.vivek.githubtrending.util.AppUtils;
 import java.io.IOException;
 
 import retrofit2.Response;
+import timber.log.Timber;
 
 
 /**
@@ -23,6 +24,7 @@ public class ApiResponse<T> {
 
         if (response.isSuccessful()) {
             T body = response.body();
+            Timber.d("body%s", body.toString());
 
             if (body instanceof GithubApiResponse) {
                 if (AppUtils.isValid((GithubApiResponse) body)) {

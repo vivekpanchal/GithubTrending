@@ -23,6 +23,7 @@ public abstract class NetworkBoundResource<ResultType, RequestType> {
         init();
     }
 
+
     private void init() {
 
         // update LiveData for loading status
@@ -129,6 +130,7 @@ public abstract class NetworkBoundResource<ResultType, RequestType> {
                     results.addSource(dbSource, new Observer<ResultType>() {
                         @Override
                         public void onChanged(@Nullable ResultType ResultType) {
+
                             setValue(
                                     Resource.error(
                                             ((ApiResponse.ApiErrorResponse) requestObjectApiResponse).getErrorMessage(),

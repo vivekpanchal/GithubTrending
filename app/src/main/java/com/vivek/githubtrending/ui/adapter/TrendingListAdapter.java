@@ -20,11 +20,10 @@ public class TrendingListAdapter extends RecyclerView.Adapter<TrendingListAdapte
     private Context context;
     private List<GithubEntity> items;
 
-    public TrendingListAdapter(Context context) {
+    public TrendingListAdapter(Context context, List<GithubEntity> items) {
         this.context = context;
-        this.items = new ArrayList<>();
+        this.items = items;
     }
-
 
     @NonNull
     @Override
@@ -39,22 +38,15 @@ public class TrendingListAdapter extends RecyclerView.Adapter<TrendingListAdapte
 
     @Override
     public void onBindViewHolder(@NonNull TrendingViewHolder holder, int position) {
-        holder.bindTo(getItem(position));
+        holder.bindTo(items.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return items.size();
     }
 
 
-    public GithubEntity getItem(int position) {
-        return items.get(position);
-    }
-
-    public void setItems(List<GithubEntity> items) {
-        this.items.addAll(items);
-    }
 
 
     protected class TrendingViewHolder extends RecyclerView.ViewHolder {

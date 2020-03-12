@@ -10,23 +10,11 @@ import androidx.room.PrimaryKey;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Date;
+
 @Entity
 public class GithubEntity implements Parcelable {
 
-    public GithubEntity(@NonNull Long id, String author, String name, String avatar,
-                        String url, String description, Integer stars, Integer forks, Integer currentPeriodStars, String language, String languageColor) {
-        this.id = id;
-        this.author = author;
-        this.name = name;
-        this.avatar = avatar;
-        this.url = url;
-        this.description = description;
-        this.stars = stars;
-        this.forks = forks;
-        this.currentPeriodStars = currentPeriodStars;
-        this.language = language;
-        this.languageColor = languageColor;
-    }
 
     @NonNull
     @PrimaryKey
@@ -53,27 +41,29 @@ public class GithubEntity implements Parcelable {
     @SerializedName("forks")
     @Expose
     private Integer forks;
-    @SerializedName("currentPeriodStars")
-    @Expose
-    private Integer currentPeriodStars;
 
-    @SerializedName("language")
-    @Expose
-    private String language;
-    @SerializedName("languageColor")
-    @Expose
-    private String languageColor;
 
-    @NonNull
-    public Long getId() {
-        return id;
-    }
+    private Date lastRefresh;
 
-    public void setId(@NonNull Long id) {
+    public GithubEntity(@NonNull Long id, String author, String name, String avatar, String url,
+                        String description, Integer stars, Integer forks, Date lastRefresh) {
         this.id = id;
+        this.author = author;
+        this.name = name;
+        this.avatar = avatar;
+        this.url = url;
+        this.description = description;
+        this.stars = stars;
+        this.forks = forks;
+        this.lastRefresh = lastRefresh;
     }
 
     protected GithubEntity(Parcel in) {
+        if (in.readByte() == 0) {
+            id = null;
+        } else {
+            id = in.readLong();
+        }
         author = in.readString();
         name = in.readString();
         avatar = in.readString();
@@ -89,13 +79,6 @@ public class GithubEntity implements Parcelable {
         } else {
             forks = in.readInt();
         }
-        if (in.readByte() == 0) {
-            currentPeriodStars = null;
-        } else {
-            currentPeriodStars = in.readInt();
-        }
-        language = in.readString();
-        languageColor = in.readString();
     }
 
     public static final Creator<GithubEntity> CREATOR = new Creator<GithubEntity>() {
@@ -109,6 +92,15 @@ public class GithubEntity implements Parcelable {
             return new GithubEntity[size];
         }
     };
+
+    @NonNull
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(@NonNull Long id) {
+        this.id = id;
+    }
 
     public String getAuthor() {
         return author;
@@ -166,31 +158,13 @@ public class GithubEntity implements Parcelable {
         this.forks = forks;
     }
 
-    public Integer getCurrentPeriodStars() {
-        return currentPeriodStars;
+    public Date getLastRefresh() {
+        return lastRefresh;
     }
 
-    public void setCurrentPeriodStars(Integer currentPeriodStars) {
-        this.currentPeriodStars = currentPeriodStars;
+    public void setLastRefresh(Date lastRefresh) {
+        this.lastRefresh =lastRefresh;
     }
-
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
-    public String getLanguageColor() {
-        return languageColor;
-    }
-
-    public void setLanguageColor(String languageColor) {
-        this.languageColor = languageColor;
-    }
-
 
     @Override
     public int describeContents() {
@@ -199,6 +173,12 @@ public class GithubEntity implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        if (id == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeLong(id);
+        }
         dest.writeString(author);
         dest.writeString(name);
         dest.writeString(avatar);
@@ -216,13 +196,5 @@ public class GithubEntity implements Parcelable {
             dest.writeByte((byte) 1);
             dest.writeInt(forks);
         }
-        if (currentPeriodStars == null) {
-            dest.writeByte((byte) 0);
-        } else {
-            dest.writeByte((byte) 1);
-            dest.writeInt(currentPeriodStars);
-        }
-        dest.writeString(language);
-        dest.writeString(languageColor);
     }
 }
