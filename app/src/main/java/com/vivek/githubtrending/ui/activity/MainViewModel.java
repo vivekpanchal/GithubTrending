@@ -37,7 +37,6 @@ public class MainViewModel extends ViewModel {
                     if (resource.isLoaded()) {
                         repositories.addAll(resource.data);
                         Timber.d("resource data :%s", resource.data.toString());
-
                         getRepositoryListLiveData().postValue(resource.data);
                     }
                 });
