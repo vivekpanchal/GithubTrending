@@ -5,12 +5,10 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.vivek.githubtrending.R;
-import com.vivek.githubtrending.data.Resource;
 import com.vivek.githubtrending.data.local.entity.GithubEntity;
 import com.vivek.githubtrending.databinding.MainActivityBinding;
 import com.vivek.githubtrending.ui.ViewModelFactory;
@@ -45,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initialiseView() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding.setLifecycleOwner(this);
         setSupportActionBar(binding.mainToolbar.toolbar);
 
         binding.recyclerview.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -52,72 +51,42 @@ public class MainActivity extends AppCompatActivity {
         binding.recyclerview.setAdapter(adapter);
 
 
-        /* This is to handle configuration changes:
-         * during configuration change, when the activity
-         * is recreated, we check if the viewModel
-         * contains the list data. If so, there is no
-         * need to call the api or load data from cache again */
-        mainViewModel.getRepositories().observe(this, new Observer<Resource<List<GithubEntity>>>() {
-            @Override
-            public void onChanged(Resource<List<GithubEntity>> listResource) {
+        mainViewModel.getRepositories().observe(this, listResource -> {
 
+            if (listResource != null) {
+                Timber.d("onChanged: status: %s", listResource.status);
 
-                if (listResource != null) {
-                    Timber.d("onChanged: status: " + listResource.status);
+                if (listResource.data != null) {
+                    switch (listResource.status) {
+                        case LOADING: {
+                            displayLoader();
+                            break;
+                        }
 
-                    if (listResource.data != null) {
-                        switch (listResource.status) {
-                            case LOADING: {
-//                                if(mRecipeListViewModel.getPageNumber() > 1){
-//                                    mAdapter.displayLoading();
-//                                }
-//                                else{
-//                                    mAdapter.displayOnlyLoading();
-//                                }
-//                                break;
-                            }
+                        case ERROR: {
+                            Timber.e("onChanged: cannot refresh the cache.");
+                            Timber.e("onChanged: ERROR message: %s", listResource.message);
+                            Timber.e("onChanged: status: ERROR, #recipes: %s", listResource.data.size());
+                            displayEmptyView();
+                            break;
+                        }
 
-                            case ERROR: {
-                                Timber.e("onChanged: cannot refresh the cache.");
-                                Timber.e("onChanged: ERROR message: %s", listResource.message);
-                                Timber.e("onChanged: status: ERROR, #recipes: %s", listResource.data.size());
-//                                mAdapter.hideLoading();
-//                                mAdapter.setRecipes(listResource.data);
-//                                Toast.makeText(RecipeListActivity.this, listResource.message, Toast.LENGTH_SHORT).show();
-//
-//                                if(listResource.message.equals(QUERY_EXHAUSTED)){
-//                                    mAdapter.setQueryExhausted();
-//                                }
-//                                break;
-                            }
-
-                            case SUCCESS: {
-                                Timber.d("onChanged: cache has been refreshed.");
-                                Timber.d("onChanged: status: SUCCESS, #Recipes: %s", listResource.data.size());
-//                                mAdapter.hideLoading();
-//                                mAdapter.setRecipes(listResource.data);
-                                break;
-                            }
+                        case SUCCESS: {
+                            Timber.d("onChanged: cache has been refreshed.");
+                            Timber.d("onChanged: status: SUCCESS, #Recipes: %s", listResource.data.size());
+                            checkIfDataPresent(listResource.data);
+                            break;
                         }
                     }
                 }
-
             }
+
         });
 
     }
 
     private void initialiseViewModel() {
         mainViewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
-        mainViewModel.getRepositoryListLiveData().observe(this, repositories -> {
-            if (adapter.getItemCount() == 0) {
-                if (!repositories.isEmpty()) {
-                    displayDataView(repositories);
-
-                } else displayEmptyView();
-
-            } else if (!repositories.isEmpty()) displayDataView(repositories);
-        });
     }
 
 
@@ -137,6 +106,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayDataView(List<GithubEntity> repositories) {
         binding.viewEmpty.emptyContainer.setVisibility(View.GONE);
+        hideLoader();
         adapter.setItems(repositories);
+        adapter.notifyDataSetChanged();
+    }
+
+    public void checkIfDataPresent(List<GithubEntity> githubEntities) {
+        if (githubEntities != null && !githubEntities.isEmpty()) {
+            displayDataView(githubEntities);
+        }
+
     }
 }

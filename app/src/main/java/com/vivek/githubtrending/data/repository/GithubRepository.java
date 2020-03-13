@@ -11,7 +11,6 @@ import com.vivek.githubtrending.data.local.dao.GithubDao;
 import com.vivek.githubtrending.data.local.entity.GithubEntity;
 import com.vivek.githubtrending.data.remote.api.GithubTrendingApiService;
 import com.vivek.githubtrending.data.remote.model.ApiResponse;
-import com.vivek.githubtrending.data.remote.model.GithubApiResponse;
 import com.vivek.githubtrending.util.AppExecutors;
 
 import java.util.List;
@@ -31,13 +30,11 @@ public class GithubRepository {
     }
 
     public LiveData<Resource<List<GithubEntity>>> getRepositories() {
-        return new NetworkBoundResource<List<GithubEntity>, GithubApiResponse>(AppExecutors.getInstance()) {
+        return new NetworkBoundResource<List<GithubEntity>, List<GithubEntity>>(AppExecutors.getInstance()) {
 
             @Override
-            protected void saveCallResult(@NonNull GithubApiResponse item) {
-                List<GithubEntity> repositories = item.getItems();
-
-                githubDao.insertRepositories(repositories);
+            protected void saveCallResult(@NonNull List<GithubEntity> item) {
+                githubDao.insertRepositories(item);
             }
 
             @Override
@@ -66,10 +63,41 @@ public class GithubRepository {
 
             @NonNull
             @Override
-            protected LiveData<ApiResponse<GithubApiResponse>> createCall() {
+            protected LiveData<ApiResponse<List<GithubEntity>>> createCall() {
                 return githubApiService.fetchTrendingRepositories();
             }
 
         }.getAsLiveData();
     }
+
+
+    public LiveData<Resource<List<GithubEntity>>> forceFetchData() {
+        return new NetworkBoundResource<List<GithubEntity>, List<GithubEntity>>(AppExecutors.getInstance()) {
+
+            @Override
+            protected void saveCallResult(@NonNull List<GithubEntity> item) {
+                githubDao.insertRepositories(item);
+            }
+
+            @Override
+            protected boolean shouldFetch(@Nullable List<GithubEntity> data) {
+                return true;
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<List<GithubEntity>> loadFromDb() {
+                return githubDao.getTrendingRepository();
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<ApiResponse<List<GithubEntity>>> createCall() {
+                return githubApiService.fetchTrendingRepositories();
+            }
+
+        }.getAsLiveData();
+    }
+
+
 }

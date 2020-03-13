@@ -12,7 +12,7 @@ public class Resource<T> {
     @Nullable
     public final String message;
 
-    private Resource(@NonNull Status status, @Nullable T data, @Nullable String message) {
+    public Resource(@NonNull Status status, @Nullable T data, @Nullable String message) {
         this.status = status;
         this.data = data;
         this.message = message;
@@ -41,4 +41,6 @@ public class Resource<T> {
     public boolean isLoaded() {
         return status != Status.LOADING;
     }
+
+    public enum Status { SUCCESS, ERROR, LOADING}
 }

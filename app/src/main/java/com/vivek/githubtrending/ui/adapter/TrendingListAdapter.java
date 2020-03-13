@@ -44,7 +44,7 @@ public class TrendingListAdapter extends RecyclerView.Adapter<TrendingListAdapte
 
     @Override
     public int getItemCount() {
-        return 0;
+        return items.size();
     }
 
 
