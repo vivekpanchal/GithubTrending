@@ -13,7 +13,6 @@ public interface GithubTrendingApiService {
 
     @GET("/repositories")
     Observable<Response<List<GithubEntity>>> fetchTrendingRepositories();
-    // you should always return object matching the json object
     // the link https://github-trending-api.now.sh/repositories return a list of GithubEntity
 
 }

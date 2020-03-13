@@ -21,13 +21,13 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_margin="@dimen/margin"
             android:padding="@dimen/padding_large">
 
             <com.vivek.githubtrending.ui.custom.CircleImageView
                 android:id="@+id/item_profile_img"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_marginTop="4dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:src="@drawable/ic_placeholder"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -41,6 +41,8 @@
                 android:text="@string/username"
                 android:textColor="@color/black"
                 android:textSize="@dimen/font_small"
+                android:paddingStart="@dimen/margin"
+                android:paddingEnd="@dimen/margin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/item_profile_img"

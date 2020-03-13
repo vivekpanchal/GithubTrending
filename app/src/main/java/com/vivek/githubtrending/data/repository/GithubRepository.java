@@ -9,12 +9,10 @@ import com.vivek.githubtrending.data.local.dao.GithubDao;
 import com.vivek.githubtrending.data.local.entity.CallTimeOutEntity;
 import com.vivek.githubtrending.data.local.entity.GithubEntity;
 import com.vivek.githubtrending.data.remote.api.GithubTrendingApiService;
-import com.vivek.githubtrending.util.AppExecutors;
 import com.vivek.githubtrending.util.ApplicationConstants;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Singleton;
 
@@ -28,36 +26,27 @@ public class GithubRepository {
 
     private GithubDao githubDao;
     private GithubTrendingApiService githubApiService;
-    private final Executor executor;
 
-    public GithubRepository(GithubDao githubDao, GithubTrendingApiService githubApiService, Executor executor) {
+    public GithubRepository(GithubDao githubDao, GithubTrendingApiService githubApiService) {
         this.githubDao = githubDao;
         this.githubApiService = githubApiService;
-        this.executor = executor;
     }
 
     public Observable<Resource<List<GithubEntity>>> getRepositories() {
-        return new NetworkBoundResource<List<GithubEntity>, List<GithubEntity>>(executor) {
+        return new NetworkBoundResource<List<GithubEntity>, List<GithubEntity>>() {
 
             @Override
             protected void saveCallResult(@NonNull List<GithubEntity> item) {
 
                 if (!item.isEmpty()) {
+                    Timber.d("save call request called saving data in the database of size %s", item.size());
+                    githubDao.insertRepositories(item);
 
-                    executor.execute(() -> {
-
-                        Timber.d("save call request called saving data in the database ");
-                        githubDao.insertRepositories(item);
-
-
-                        //adding the success transaction int the db
-                        CallTimeOutEntity timeOutEntity = new CallTimeOutEntity();
-                        timeOutEntity.setLastRefreshTimeStamp((int) (System.currentTimeMillis() / 1000));
-                        timeOutEntity.setNetworkCall(true);
-                        githubDao.insertNetworkCallTime(timeOutEntity);
-
-
-                    });
+                    //adding the success transaction int the db
+                    CallTimeOutEntity timeOutEntity = new CallTimeOutEntity();
+                    timeOutEntity.setLastRefreshTimeStamp((int) (System.currentTimeMillis() / 1000));
+                    timeOutEntity.setNetworkCall(true);
+                    githubDao.insertNetworkCallTime(timeOutEntity);
 
                 }
 
@@ -77,6 +66,9 @@ public class GithubRepository {
             @Override
             protected Flowable<List<GithubEntity>> loadFromDb() {
                 List<GithubEntity> repositories = githubDao.getTrendingRepository();
+                if (repositories != null) {
+                    Timber.d("loading from Db called  current repository in db %s", repositories.size());
+                }
                 return (repositories == null || repositories.isEmpty()) ?
                         Flowable.empty() : Flowable.just(repositories);
             }
@@ -84,6 +76,7 @@ public class GithubRepository {
             @NonNull
             @Override
             protected Observable<Resource<List<GithubEntity>>> createCall() {
+                Timber.d("Creating call to fetch the data ");
                 //flatMap is used to convert the list of items into observable
                 return githubApiService.fetchTrendingRepositories().flatMap(
                         listResponse -> {
@@ -105,7 +98,7 @@ public class GithubRepository {
 
 
     public Observable<Resource<List<GithubEntity>>> getRepositoriesForceUpdate() {
-        return new NetworkBoundResource<List<GithubEntity>, List<GithubEntity>>(executor) {
+        return new NetworkBoundResource<List<GithubEntity>, List<GithubEntity>>() {
 
             @Override
             protected void saveCallResult(@NonNull List<GithubEntity> item) {
@@ -165,23 +158,23 @@ public class GithubRepository {
 
 
     private boolean isRefreshDataRequired() {
-        AtomicBoolean isRefreshRequired = new AtomicBoolean(false);
-        executor.execute(() -> {
-            CallTimeOutEntity timeOutEntity = githubDao.getLatestTimeout();
+        CallTimeOutEntity timeOutEntity = githubDao.getLatestTimeout();
+        if (timeOutEntity != null && timeOutEntity.getLastRefreshTimeStamp() != 0) {
             int currentTime = (int) (System.currentTimeMillis() / 1000);
             Timber.d("shouldFetch: current time: %s", currentTime);
             int lastRefresh = timeOutEntity.getLastRefreshTimeStamp();
             Timber.d("shouldFetch: last refresh: %s", lastRefresh);
             Timber.d("shouldFetch: it's been " + ((currentTime - lastRefresh)) +
-                    "seconds since this recipe was refreshed. 2 hours must elapse before refreshing. ");
+                    "seconds since this data was refreshed. 2 hours must elapse before refreshing. ");
             if ((currentTime - lastRefresh) >= ApplicationConstants.DATA_REFRESH_TIME) {
                 Timber.d("shouldFetch: SHOULD REFRESH Data?! %s", true);
-                isRefreshRequired.set(true);
+                return true;
             }
             Timber.d("shouldFetch: SHOULD REFRESH Data?! %s", false);
-            isRefreshRequired.set(false);
-        });
+            return false;
+        } else {
+            return true;
+        }
 
-        return isRefreshRequired.get();
     }
 }

@@ -22,7 +22,7 @@ public class AppModule {
 
     @Provides
     @Singleton
-    GithubRepository providesRepository(GithubDao dao, GithubTrendingApiService trendingApiService, Executor executor) {
-        return new GithubRepository(dao, trendingApiService, executor);
+    GithubRepository providesRepository(GithubDao dao, GithubTrendingApiService trendingApiService) {
+        return new GithubRepository(dao, trendingApiService);
     }
 }

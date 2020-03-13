@@ -5,9 +5,7 @@ import android.annotation.SuppressLint;
 import androidx.lifecycle.ViewModel;
 
 import com.vivek.githubtrending.data.SingleLiveEvent;
-import com.vivek.githubtrending.data.local.dao.GithubDao;
 import com.vivek.githubtrending.data.local.entity.GithubEntity;
-import com.vivek.githubtrending.data.remote.api.GithubTrendingApiService;
 import com.vivek.githubtrending.data.repository.GithubRepository;
 
 import java.util.ArrayList;
@@ -26,12 +24,12 @@ public class MainViewModel extends ViewModel {
     private SingleLiveEvent<List<GithubEntity>> repoListLiveData = new SingleLiveEvent<>();
 
     @Inject
-    public MainViewModel(GithubRepository GithubRepository) {
+    MainViewModel(GithubRepository GithubRepository) {
         this.repository = GithubRepository;
     }
 
     @SuppressLint("CheckResult")
-    public void fetchRepositories() {
+    void fetchRepositories() {
         repository.getRepositories()
                 .subscribe(resource -> {
                     if (resource.isLoaded()) {
@@ -44,7 +42,7 @@ public class MainViewModel extends ViewModel {
 
 
     @SuppressLint("CheckResult")
-    public void forceFetchRepositories() {
+    void forceFetchRepositories() {
         repository.getRepositoriesForceUpdate()
                 .subscribe(resource -> {
                     if (resource.isLoaded()) {
@@ -56,11 +54,11 @@ public class MainViewModel extends ViewModel {
     }
 
 
-    public List<GithubEntity> getRepositories() {
+    List<GithubEntity> getRepositories() {
         return repositories;
     }
 
-    public SingleLiveEvent<List<GithubEntity>> getRepositoryListLiveData() {
+    SingleLiveEvent<List<GithubEntity>> getRepositoryListLiveData() {
         return repoListLiveData;
     }
 
