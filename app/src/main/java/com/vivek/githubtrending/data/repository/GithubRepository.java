@@ -12,7 +12,6 @@ import com.vivek.githubtrending.data.remote.api.GithubTrendingApiService;
 import com.vivek.githubtrending.util.ApplicationConstants;
 
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import javax.inject.Singleton;
 
@@ -160,6 +159,7 @@ public class GithubRepository {
     private boolean isRefreshDataRequired() {
         CallTimeOutEntity timeOutEntity = githubDao.getLatestTimeout();
         if (timeOutEntity != null && timeOutEntity.getLastRefreshTimeStamp() != 0) {
+
             int currentTime = (int) (System.currentTimeMillis() / 1000);
             Timber.d("shouldFetch: current time: %s", currentTime);
             int lastRefresh = timeOutEntity.getLastRefreshTimeStamp();

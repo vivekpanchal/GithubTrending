@@ -26,7 +26,7 @@ public abstract class NetworkBoundResource<ResultType, RequestType> {
                     .subscribeOn(Schedulers.io())
                     .doOnNext(apiResponse -> saveCallResult(processResponse(apiResponse)))
                     .flatMap(apiResponse -> loadFromDb().toObservable().map(Resource::success))
-                    .doOnError(this::onFetchFailed) // Always log errors don't leave empty
+                    .doOnError(this::onFetchFailed)
                     .onErrorResumeNext(t -> {
                         return loadFromDb()
                                 .toObservable()
@@ -51,7 +51,7 @@ public abstract class NetworkBoundResource<ResultType, RequestType> {
 
     public Observable<Resource<ResultType>> getAsObservable() {return result;}
 
-    // Always log errors don't leave empty
+
     protected void onFetchFailed(Throwable cause) {
         Timber.e(cause);
     }
