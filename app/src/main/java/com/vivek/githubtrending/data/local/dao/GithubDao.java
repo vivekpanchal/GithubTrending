@@ -6,6 +6,7 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
+import com.vivek.githubtrending.data.local.entity.CallTimeOutEntity;
 import com.vivek.githubtrending.data.local.entity.GithubEntity;
 
 import java.util.List;
@@ -18,4 +19,10 @@ public interface GithubDao {
 
     @Query("SELECT * FROM `GithubEntity`")
     LiveData<List<GithubEntity>> getTrendingRepository();
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertNetworkCallTime(CallTimeOutEntity timeOutEntity);
+
+    @Query("SELECT * FROM CallTimeOutEntity  ORDER BY id DESC LIMIT 1")
+    CallTimeOutEntity getLatestTimeout();
 }

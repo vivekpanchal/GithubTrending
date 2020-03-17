@@ -1,6 +1,7 @@
 package com.vivek.githubtrending.ui.activity;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
         initialiseViewModel();
         initialiseView();
 
-
     }
 
     private void initialiseView() {
@@ -49,6 +49,18 @@ public class MainActivity extends AppCompatActivity {
         binding.recyclerview.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         adapter = new TrendingListAdapter(getApplicationContext());
         binding.recyclerview.setAdapter(adapter);
+
+        binding.refresh.setOnRefreshListener(() -> {
+
+            mainViewModel.forceFetchRepo();
+            final Handler handler = new Handler();
+            handler.postDelayed(() -> {
+                if (binding.refresh.isRefreshing()) {
+                    binding.refresh.setRefreshing(false);
+                }
+            }, 1000);
+
+        });
 
 
         mainViewModel.getRepositories().observe(this, listResource -> {

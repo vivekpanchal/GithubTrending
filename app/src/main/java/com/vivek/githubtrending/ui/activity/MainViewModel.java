@@ -70,6 +70,41 @@ public class MainViewModel extends ViewModel {
     }
 
 
+    public void forceFetchRepo() {
+        final LiveData<Resource<List<GithubEntity>>> repositorySource = repository.forceFetchData();
+        repositories.addSource(repositorySource, new Observer<Resource<List<GithubEntity>>>() {
+            @Override
+            public void onChanged(Resource<List<GithubEntity>> listResource) {
+
+                if (listResource != null) {
+                    if (listResource.status == Resource.Status.SUCCESS) {
+                        Timber.d("onChanged: %s", listResource.data);
+
+                        if (listResource.data != null) {
+                            if (listResource.data.size() == 0) {
+                                Timber.d("onChanged: Empty data...");
+                                repositories.setValue(
+                                        new Resource<List<GithubEntity>>(
+                                                Resource.Status.ERROR,
+                                                listResource.data,
+                                                NO_ITEM_FOUND
+                                        )
+                                );
+                            }
+                        }
+                        repositories.removeSource(repositorySource);
+                    } else if (listResource.status == Resource.Status.ERROR) {
+                        repositories.removeSource(repositorySource);
+                    }
+                    repositories.setValue(listResource);
+                } else {
+                    repositories.removeSource(repositorySource);
+                }
+            }
+
+        });
+    }
+
     public LiveData<Resource<List<GithubEntity>>> getRepositories() {
         return repositories;
     }

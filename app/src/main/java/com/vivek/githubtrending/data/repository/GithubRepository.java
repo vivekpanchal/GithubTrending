@@ -8,14 +8,18 @@ import androidx.lifecycle.LiveData;
 import com.vivek.githubtrending.data.NetworkBoundResource;
 import com.vivek.githubtrending.data.Resource;
 import com.vivek.githubtrending.data.local.dao.GithubDao;
+import com.vivek.githubtrending.data.local.entity.CallTimeOutEntity;
 import com.vivek.githubtrending.data.local.entity.GithubEntity;
 import com.vivek.githubtrending.data.remote.api.GithubTrendingApiService;
 import com.vivek.githubtrending.data.remote.model.ApiResponse;
 import com.vivek.githubtrending.util.AppExecutors;
+import com.vivek.githubtrending.util.ApplicationConstants;
 
 import java.util.List;
 
 import javax.inject.Singleton;
+
+import timber.log.Timber;
 
 
 @Singleton
@@ -34,24 +38,29 @@ public class GithubRepository {
 
             @Override
             protected void saveCallResult(@NonNull List<GithubEntity> item) {
-                githubDao.insertRepositories(item);
+
+                if (!item.isEmpty()) {
+                    Timber.d("save call request called saving data in the database of size %s", item.size());
+                    githubDao.insertRepositories(item);
+
+                    //adding the success transaction int the db
+                    CallTimeOutEntity timeOutEntity = new CallTimeOutEntity();
+                    timeOutEntity.setLastRefreshTimeStamp((int) (System.currentTimeMillis() / 1000));
+                    timeOutEntity.setNetworkCall(true);
+                    githubDao.insertNetworkCallTime(timeOutEntity);
+
+                }
+
             }
 
+            /**
+             * only refresh data when the data is being stale for more than 2 hours until then
+             * just use the cached data from the database
+             * @return true false based on the condition satified
+             */
             @Override
             protected boolean shouldFetch(@Nullable List<GithubEntity> data) {
-//                Timber.d("shouldFetch: repo: " + data.toString());
-//                int currentTime = (int) (System.currentTimeMillis() / 1000);
-//                Timber.d("shouldFetch: current time: " + currentTime);
-//                int lastRefresh = data.getTimestamp();
-//                Timber.d("shouldFetch: last refresh: " + lastRefresh);
-//                Timber.d("shouldFetch: it's been " + ((currentTime - lastRefresh) / 60 / 60 / 24) +
-//                        " days since this recipe was refreshed. 30 days must elapse before refreshing. ");
-//                if ((currentTime - data.getTimestamp()) >= Constants.RECIPE_REFRESH_TIME) {
-//                    Timber.d("shouldFetch: SHOULD REFRESH RECIPE?! " + true);
-//                    return true;
-//                }
-//                Timber.d("shouldFetch: SHOULD REFRESH RECIPE?! " + false);
-                return true;
+                return isRefreshDataRequired();
             }
 
 
@@ -100,4 +109,25 @@ public class GithubRepository {
     }
 
 
+    private boolean isRefreshDataRequired() {
+        CallTimeOutEntity timeOutEntity = githubDao.getLatestTimeout();
+        if (timeOutEntity != null && timeOutEntity.getLastRefreshTimeStamp() != 0) {
+
+            int currentTime = (int) (System.currentTimeMillis() / 1000);
+            Timber.d("shouldFetch: current time: %s", currentTime);
+            int lastRefresh = timeOutEntity.getLastRefreshTimeStamp();
+            Timber.d("shouldFetch: last refresh: %s", lastRefresh);
+            Timber.d("shouldFetch: it's been " + ((currentTime - lastRefresh)) +
+                    "seconds since this data was refreshed. 2 hours must elapse before refreshing. ");
+            if ((currentTime - lastRefresh) >= ApplicationConstants.DATA_REFRESH_TIME) {
+                Timber.d("shouldFetch: SHOULD REFRESH Data?! %s", true);
+                return true;
+            }
+            Timber.d("shouldFetch: SHOULD REFRESH Data?! %s", false);
+            return false;
+        } else {
+            return true;
+        }
+
+    }
 }

@@ -13,9 +13,9 @@ import com.google.gson.annotations.SerializedName;
 @Entity
 public class GithubEntity implements Parcelable {
 
-    public GithubEntity(@NonNull Long id, String author, String name, String avatar,
+    public GithubEntity(@NonNull String author, String name, String avatar,
                         String url, String description, Integer stars, Integer forks, Integer currentPeriodStars, String language, String languageColor) {
-        this.id = id;
+
         this.author = author;
         this.name = name;
         this.avatar = avatar;
@@ -28,10 +28,9 @@ public class GithubEntity implements Parcelable {
         this.languageColor = languageColor;
     }
 
+
     @NonNull
     @PrimaryKey
-    private Long id;
-
     @SerializedName("author")
     @Expose
     private String author;
@@ -63,15 +62,6 @@ public class GithubEntity implements Parcelable {
     @SerializedName("languageColor")
     @Expose
     private String languageColor;
-
-    @NonNull
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(@NonNull Long id) {
-        this.id = id;
-    }
 
     protected GithubEntity(Parcel in) {
         author = in.readString();
@@ -110,11 +100,12 @@ public class GithubEntity implements Parcelable {
         }
     };
 
+    @NonNull
     public String getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public void setAuthor(@NonNull String author) {
         this.author = author;
     }
 
@@ -174,7 +165,6 @@ public class GithubEntity implements Parcelable {
         this.currentPeriodStars = currentPeriodStars;
     }
 
-
     public String getLanguage() {
         return language;
     }
@@ -190,7 +180,6 @@ public class GithubEntity implements Parcelable {
     public void setLanguageColor(String languageColor) {
         this.languageColor = languageColor;
     }
-
 
     @Override
     public int describeContents() {
@@ -224,5 +213,21 @@ public class GithubEntity implements Parcelable {
         }
         dest.writeString(language);
         dest.writeString(languageColor);
+    }
+
+    @Override
+    public String toString() {
+        return "GithubEntity{" +
+                "author='" + author + '\'' +
+                ", name='" + name + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", url='" + url + '\'' +
+                ", description='" + description + '\'' +
+                ", stars=" + stars +
+                ", forks=" + forks +
+                ", currentPeriodStars=" + currentPeriodStars +
+                ", language='" + language + '\'' +
+                ", languageColor='" + languageColor + '\'' +
+                '}';
     }
 }
