@@ -2,7 +2,6 @@
 
 An Android App that lists the most trending repositories in Android from Github.
 
-<img src="https://github.com/anitaa1990/Github-Trending-Repos/blob/master/media/1.gif" width="200" style="max-width:100%;">   <img src="https://github.com/anitaa1990/Github-Trending-Repos/blob/master/media/2.gif" width="200" style="max-width:100%;"></br></br>
 
 #### App Features
 * Users can view the most trending repositories in Android from Github.
